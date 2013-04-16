@@ -1,0 +1,65 @@
+<head>
+  <title>Posts</title>
+</head>
+
+<body>
+  <header class="navbar navbar-fixed-top">
+    <nav class="navbar-inner">
+      <div class="container">
+	 <div class="row">
+                <div class="span5">
+                        <h2> My app </h2>
+                </div>
+                 <div class="span5">
+                        <div style="float: right">
+                                {{loginButtons align="right"}}
+                        </div>
+                </div>
+
+        </div>
+      </div>
+    </nav>
+  </header>
+  <div id="main" role="main">
+    <div class="container">
+        <div class="row">
+          <div class="span12">
+            {{> compose}}
+            {{> list}}
+          </div>
+        </div>
+        <footer>
+        </footer>
+      </div>
+    </div> <!--! end of .container -->
+  </div> <!--! end of #main -->
+
+</body>
+
+<template name="compose">
+  <form id="new-post">
+    <textarea class="field span5"
+              id="post-body"
+              rows="2"
+              placeholder="Compose new post ..."
+              required></textarea>
+    <input type="submit" value="Create" class="btn btn-primary">
+  </form>
+</template>
+
+<template name="list">
+  <table class="span6">
+    <tbody>
+      {{#each posts}}
+        <tr>
+          <td>
+            {{body}}
+          </td>
+          <td class="post-remove">
+            <i class="icon-trash"></i>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</template>
