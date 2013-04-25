@@ -55,14 +55,19 @@
     <tbody>
       {{#each posts}}
         <tr>
+
+		 <input type="button" class="vote_up" value="Vote Up"/>
           <td>
+
             {{body}}
 		<span> {{votes}}</span>
-		 <input type="button" class="vote_up" value="Vote Up"/>
+
 	  </td>
+{{#if is_owner this }}
           <td class="post-remove">
             <i class="icon-trash"></i>
           </td>
+{{/if}}
         </tr>
       {{/each}}
     </tbody>

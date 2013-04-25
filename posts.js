@@ -28,7 +28,7 @@ if (Meteor.isClient) {
       Posts.remove(this._id);
     },
     'click input.vote_up': function(event) {
-	    if(Posts.findOne({_id: this._id}).owner != Meteor.userId()){     //if the post is not owned by the voter, then the voter can vote for it
+	    if(Posts.findOne({_id: this._id}).owner != Meteor.userId()){     //if the post is not owned by the voter, then the voter can vote for it. But users can't vote for their own posts.
  		Posts.update({_id: this._id},{$inc: {votes:1}});
 	}
     }
@@ -36,20 +36,29 @@ if (Meteor.isClient) {
 
   Template.list.posts = Posts.find({}, {sort: {votes: -1}});
 
-// alert("hello");
+  Template.list.is_owner = function(data, options){
+	if(data.owner == Meteor.userId()){
+		console.log("hello");
+		return true;
+	}
+	else{
+	}
+};
+ 
+
 Meteor.startup(function () {
- $('#testajax').text("test 1 works");
 
 	console.log('sstuff');
-$('#test').click(function(){
-	console.log("it works");
-	$('#textajax').text("works");
-	alert("before xhr");
-	$.get('test.txt',function(data) {
-		$('#testajax').html(data);
-		alert('Load was performed.');
-	});
- });
+	$('#test').click(function(){
+		console.log("it works");
+		$.get('example.pdf',function(pdfdata) {
+		$('#testajax').html("<iframe width=800 height=500><body><object type='application/pdf'>" + pdfdata + "</object></body></iframe>");
+	//	$('#testajax').html("<iframe  width=800 height=500>" + pdfdata + "</iframe>");
+
+	//	$('#testajax').html("<object type='application/pdf'>" + pdfdata + "</object>");
+		console.log('ajax completed');
+		});
+ 	});
 });
 
 
