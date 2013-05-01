@@ -7,7 +7,7 @@
   <header class="navbar navbar-fixed-top">
     <nav class="navbar-inner">
       <div class="container">
-	 <div class="row">
+	     <div class="row">
                 <div class="span5">
                         <h2> My app </h2>
                 </div>
@@ -21,7 +21,6 @@
       </div>
     </nav>
   </header>
-  <div id="main" role="main">
     <div class="container">
         <div class="row">
           <div class="span12">
@@ -29,13 +28,16 @@
             {{> list}}
           </div>
         </div>
-        <footer>
-	 <input type="button" id="test" value="test"/>        
-	<div id="testajax"> here </div>
-	</footer>
-      </div>
+
+        <div class="row">
+            <div class="span12">
+                <footer>
+        	        <input type="button" id="test" value="test"/>        
+                	<div id="testajax"> here </div>
+            	</footer>
+            </div>
+        </div>
     </div> <!--! end of .container -->
-  </div> <!--! end of #main -->
 
 </body>
 
@@ -43,33 +45,77 @@
   <form id="new-post">
     <textarea class="field span5"
               id="post-body"
-              rows="2"
+              rows="10"
               placeholder="Compose new post ..."
               required></textarea>
     <input type="submit" value="Create" class="btn btn-primary">
   </form>
 </template>
 
+<!-- might make this a nested template-->
+
 <template name="list">
-  <table class="span6">
-    <tbody>
-      {{#each posts}}
-        <tr>
 
-		 <input type="button" class="vote_up" value="Vote Up"/>
-          <td>
+    {{#each posts}}
+		<div class="post">
+			<table class="table table-condensed">
+				<tbody>
+					<tr>
+						<td class="first_column">
+							<span class="vote_up">
+								<i class="icon-arrow-up"></i>
+							</span>
+							<h3 class="number_of_votes">
+								{{votes}}
+							</h3>
+						
+						</td>
+						
+						<td>
 
-            {{body}}
-		<span> {{votes}}</span>
+						{{body}}
 
-	  </td>
-{{#if is_owner this }}
-          <td class="post-remove">
-            <i class="icon-trash"></i>
-          </td>
-{{/if}}
-        </tr>
-      {{/each}}
-    </tbody>
-  </table>
+						{{#if is_owner this }}
+							  <span class="post-remove">
+								<i class="icon-trash"></i>
+							  </span>
+						{{/if}}
+
+						</td>
+					</tr>
+					{{#each this.comments}}        
+						<tr class="comments">
+							<td class="first_column">       
+							<b>-</b>
+							</td>
+							<td>
+							this is a test {{this}}
+							</td>
+						</tr>
+					{{/each}}
+
+				
+					<!-- <tr class="comments">						
+						<td colspan=2 class="add_comment">
+							
+						</td>
+					</tr> -->
+				</tbody>
+		  </table>
+		  
+		  
+						   <span class="add_comment comments">
+						   Add comment
+								 <i class="icon-comment"></i>
+						   </span>
+						     <form class="new-comment">
+									<textarea class="field span5"
+											  class="comment-body"
+											  rows="3"
+											  placeholder="Add comment ..." ></textarea>
+									<input type="submit" value="Add comment" class="btn btn-primary">
+							  </form>
+		</div>
+	{{/each}}
+	
 </template>
