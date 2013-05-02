@@ -13,6 +13,10 @@ body {
     margin-left: 150px;
 }
 
+.post {
+    margin: 80px 0px;
+}
+
 .number_of_votes{
     display: inline-block;
 }
@@ -25,8 +29,8 @@ body {
 	width: 30px;
 }
 
-.new-comment textarea{
-	width: 550px;
+.comment-body{
+	width: 700px;
 
 }
 
