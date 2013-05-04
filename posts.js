@@ -1,3 +1,5 @@
+
+
 Posts = new Meteor.Collection("posts");
 Comments = new Meteor.Collection("comments");
 
@@ -6,18 +8,22 @@ if (Meteor.isClient) {
 
   Template.compose.events({
     'submit form': function (event) {
-      var $body = $('#post-body');
-      event.preventDefault();
+		if (!this.userId){
+		  throw new Meteor.Error(403, "You must be logged in");
+		}
+		else{
+		  var $body = $('#post-body');
+		  event.preventDefault();
 
-      Posts.insert({
-        owner: Meteor.userId(),
-        body: $body.val(),
-    	votes: 0,
-        comments: [],
-        created_at: Date()
-      });
-      $body.val('');
-      $('#remaining').html(MAX_CHARS);
+		  Posts.insert({
+			owner: Meteor.userId(),
+			body: $body.val(),
+			votes: 0,
+			created_at: Date()
+		  });
+		  $body.val('');
+		  $('#remaining').html(MAX_CHARS);
+		} 
     },
 
     'keyup #post-body': function() {
@@ -50,33 +56,50 @@ if (Meteor.isClient) {
 		 
 		  var $this = $(event.target);
 		
-		var comment = $this.prev();
+		var comment = $this.parent().prev();
 		
+		//placing a reference to the post in the comment, as opposed to the other way around, gets by a problem where the posts rendering was triggered unnecessarily every time a comment was added.
 	    var comment_id = Comments.insert({
+			post_id: this._id,	//reference to post it belongs to 
 			owner: Meteor.userId(),
 			text: comment.val(),    	
 			created_at: Date()
 		});
 		
-		Posts.update({_id: this._id},{$push: {comments: comment_id}});
-		$this.hide();
+		// Posts.update({_id: this._id},{$push: {comments: comment_id}});
+		$this.parent().hide();
 		comment.val('');
 
     },
+	'click .cancel_comment': function(event) {
+		// console.log("add comment?");
+		 
+		//it is necessary to use e.target and reassign to $this. Because using $(this) will clash with meteor use of "this" as the current data context.		
+		//http://stackoverflow.com/questions/11770613/using-jquery-this-in-meteor		
+		 
+		  var $this = $(event.target);
+		
+		var comment = $this.parent().prev();
+			comment.val('');    
+		$this.parent().hide();
+		
+
+    }
   });
 
 	Template.list.posts = Posts.find({}, {sort: {votes: -1}});
 	
-	Template.list.get_comments = function(post, options){  
+	Template.comments_area.get_comments = function(post, options){  
 		return Comments.find(
 			{
-			  _id: { $in: post.comments }
-			}
+			  post_id: post._id
+			},
+			{sort: {created_at: 1}}
 		)
 	};
 
 
-  Template.list.is_owner = function(data, options){
+  Template.post_body.is_owner = function(data, options){
 		if(data.owner == Meteor.userId()){
 			console.log("hello");
 			return true;
@@ -87,7 +110,7 @@ if (Meteor.isClient) {
  
 	//hide the add comment button once the template is rendered for the first time.
 	Template.list.rendered = function(){
-		$('.add_comment').hide();	
+		$('.comment_buttons').hide();	
 	};
 	
 Meteor.startup(function () {

@@ -9,7 +9,7 @@
       <div class="container">
 	     <div class="row">
                 <div class="span5">
-                        <h2> My app </h2>
+                        <h2> Lecture Board </h2>
                 </div>
                  <div class="span5">
                         <div style="float: right">
@@ -21,7 +21,9 @@
       </div>
     </nav>
   </header>
+  
     <div class="container">
+	{{#if currentUser}}
         <div class="row">
           <div class="span12">
             {{> compose}}
@@ -37,6 +39,7 @@
             	</footer>
             </div>
         </div>
+	{{/if}}
     </div> <!--! end of .container -->
 
 </body>
@@ -61,69 +64,80 @@
 			<table class="table table-bordered">
 				<tbody>
 					<tr>
-						<td class="first_column">
-							<span class="vote_up">
-								<i class="icon-arrow-up"></i>
-							</span>
-							<h3 class="number_of_votes">
-								{{votes}}
-							</h3>
-						
-						</td>
-						
-						<td>
-
-						{{body}}
-
-						{{#if is_owner this }}
-							  <span class="post-remove">
-								<i class="icon-trash"></i>
-							  </span>
-						{{/if}}
-
-						</td>
+						{{> vote_section}}
+						{{> post_body}}
 					</tr>
-					{{#each get_comments this}}        
-						<tr class="comments">
-							<td class="first_column">       
-							<b>-</b>
-							</td>
-							<td>
-							{{text}}
-							</td>
-						</tr>
-					{{/each}}
+					
+						{{> comments_area}}
 					<tr>
-							<td class="first_column">       
-							<b>-</b>
-							</td>
-							<td>
-								<textarea class="field comment-body"
-											  rows="2"
-											  placeholder="Add comment ..." ></textarea>
-									<input type="submit" value="Add comment" class="btn btn-primary add_comment">
-									
-									<!-- add cancel button? -->
-
-							</td>
-					</tr>
-					<!-- <tr class="comments">						
-						<td colspan=2 class="add_comment">
+						{{> add_comment_area}}
 							
-						</td>
-					</tr> -->
+					</tr>
+					
 				</tbody>
 		  </table>
-		  
-		  
-						   <!-- <span class="add_comment comments">
-						   Add comment
-								 <i class="icon-comment"></i>
-						   </span>
-						     <form class="new-comment">
-									
-							  </form> -->
 		</div>
 	{{/each}}
 	
 </template>
+
+<template name="vote_section">
+	<td class="first_column">
+		<span class="vote_up">
+			<i class="icon-arrow-up"></i>
+		</span>
+		<h3 class="number_of_votes">
+			{{votes}}
+		</h3>
+
+	</td>
+</template>
+
+<template name="post_body">
+	<td>
+		<p>
+		{{body}}
+		</p>
+	
+
+		{{#if is_owner this }}
+			  <span class="post-remove">
+				<i class="icon-trash"></i>
+					
+			  </span>
+		{{/if}}
+
+	</td>
+</template>						
+
+
+<template name="comments_area">
+	{{#each get_comments this}}        
+		<tr class="comments">
+			<td class="first_column">       
+				<b>-</b>
+			</td>
+			<td>
+				{{text}}
+			</td>
+		</tr>
+	{{/each}}
+</template>										
+
+<template name="add_comment_area">
+	
+	<td class="first_column">       
+		<b>-</b>
+	</td>
+	
+	<td>
+		<textarea class="field comment-body"
+					  rows="2"
+					  placeholder="Add comment ..." ></textarea>
+		<div class="comment_buttons">
+			<input type="button" value="Add comment" class="btn btn-primary add_comment">
+			<input type="button" value="Cancel" class="btn btn-primary cancel_comment">
+		</div>
+	</td>
+	
+</template>					
