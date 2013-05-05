@@ -1,5 +1,5 @@
 
-
+Lectures = new Meteor.Collection("lectures");
 Posts = new Meteor.Collection("posts");
 Comments = new Meteor.Collection("comments");
 
@@ -9,7 +9,7 @@ if (Meteor.isClient) {
   Template.compose.events({
     'submit form': function (event) {
 		if (!this.userId){
-		  throw new Meteor.Error(403, "You must be logged in");
+		  throw new Meteor.Error(403, "You must be logged in");//this is not working...
 		}
 		else{
 		  var $body = $('#post-body');
@@ -168,5 +168,19 @@ Comments.allow({
         },
 	remove: function(userId, comment){
 		return (userId && comment.owner == userId);
+	}
+});
+
+Lectures.allow({ //review this!
+	//only users logged in and the owners of posts can insert or remove posts. Logged in users can update posts, for voting.
+	insert: function(userId, lecture){
+		return (userId && lecture.owner == userId);	
+	},
+	/*need to review update case if user is not owner of post*/
+	update: function(userId, lecture){
+            return (userId && lecture.owner == userId);	
+        },
+	remove: function(userId, lecture){
+		return (userId && lecture.owner == userId);
 	}
 });
