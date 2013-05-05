@@ -6,11 +6,26 @@ body {
 	width: 800px;
 }
 
+.container.top_panel {
+    padding: 8px;
+	width: 800px;
+}
+
+.navbar {
+    margin-bottom: 10px;
+}
+
+.navbar .brand {
+	margin-right: 40px;
+	font-size: 30px;
+}
+
 .span12{
     /* text-align: left;     */
 	width: auto;
 	margin-left: 0;	/* need to override unwanted effect from bootstrap */
-	 float: none;
+	margin-top: 20px;
+	float: none;
 }
 
 .row{
@@ -42,10 +57,11 @@ body {
 #new-post textarea {
   
     margin-right: 15px;
-	width: 750px;
+	width: 780px;
+	padding: 10px;
 }
 #new-post {
-    margin: 20px;
+   /*  margin: 20px; */
 }
 
 .post-remove {

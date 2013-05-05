@@ -4,30 +4,50 @@ Posts = new Meteor.Collection("posts");
 Comments = new Meteor.Collection("comments");
 
 if (Meteor.isClient) {
-  var MAX_CHARS = 140;
 
+
+	Template.add_lecture_modal.events({
+	'click .btn-primary': function(event, template){
+			Lectures.insert({
+				owner: Meteor.userId(),
+				title: template.find('input[type="text"]').value,
+				created_at: Date()
+			});
+		},
+	'click .btn': function(event, template){	//when either button is clicked, clear the input textfield.		
+				console.log("btn ok");
+				$('input[type="text"]').val('');
+		
+		}	
+	
+	});
+	
+	Template.lectures_menu.events({
+		'click a': function(event){
+			Session.set("selected_lecture", this._id);	
+		}
+		//could try to make the element active once clicked.
+	});
+	
   Template.compose.events({
     'submit form': function (event) {
-		if (!this.userId){
-		  throw new Meteor.Error(403, "You must be logged in");//this is not working...
-		}
-		else{
+		// if (!this.userId){
+		  // throw new Meteor.Error(403, "You must be logged in");//this is not working...
+		// }
+		// else{
+		console.log("in else");
 		  var $body = $('#post-body');
 		  event.preventDefault();
 
 		  Posts.insert({
+			lecture_id: Session.get('selected_lecture'),
 			owner: Meteor.userId(),
 			body: $body.val(),
 			votes: 0,
 			created_at: Date()
 		  });
 		  $body.val('');
-		  $('#remaining').html(MAX_CHARS);
-		} 
-    },
-
-    'keyup #post-body': function() {
-      $('#remaining').html(MAX_CHARS - $('#post-body').val().length);
+		// } 
     }
   });
 
@@ -86,14 +106,29 @@ if (Meteor.isClient) {
 
     }
   });
+  
+	Template.add_lecture_modal.participants = Meteor.users.find({_id:  {$ne: Meteor.userId()}});
+	
+	Template.lectures_menu.lectures = Lectures.find({}, {sort: {created_at: 1}});
+	
+	//create it as a function so that it will be rerun when the session variable ('selected_lecture') changes.
+	Template.page_main.current_lecture = function(options){
+			return Lectures.findOne(
+				{_id:  Session.get('selected_lecture')}
+			)
+	};
 
-	Template.list.posts = Posts.find({}, {sort: {votes: -1}});
+	Template.list.posts = function(){
+		return Posts.find(
+			{lecture_id: Session.get('selected_lecture')}, 
+			{sort: {votes: -1, created_at: 1}}
+		)
+	};
+		
 	
 	Template.comments_area.get_comments = function(post, options){  
 		return Comments.find(
-			{
-			  post_id: post._id
-			},
+			{post_id: post._id},
 			{sort: {created_at: 1}}
 		)
 	};

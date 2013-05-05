@@ -3,29 +3,47 @@
 </head>
 
 <body>
-
-  <header class="navbar navbar-static-top">
-    <nav class="navbar-inner">
-      <div class="container">
-	     <div class="row">
-                <div class="span5">
-                        <h2> Lecture Board </h2>
-                </div>
-                 <div class="span5">
-                        <div style="float: right">
-                                {{loginButtons align="right"}}
-                        </div>
-                </div>
-
-        </div>
-      </div>
+<header class="navbar navbar-static">
+              <nav class="navbar-inner">
+                <div class="container top_panel">
+				
+                  <a href="#" class="brand">Lecture Board</a>
+				  
+                  <ul role="navigation" class="nav nav-pills">
+						<li>
+							<!-- <a href="#">Add Class</a> -->
+							<!-- note: removed some attr, is it ok? -->
+							<a href="#ac_modal" data-toggle="modal">Add Lecture</a>
+							{{> add_lecture_modal }}
+								
+						</li>
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" role="button" id="drop2" href="#">Select Lecture<b class="caret"></b></a>
+							  <ul aria-labelledby="drop2" role="menu" class="dropdown-menu">
+								{{> lectures_menu}}								
+							  </ul>
+						</li>
+					</ul>
+					<ul class="nav pull-right">
+                       {{loginButtons align="right"}}
+					</ul>
+                
+				</div>  
     </nav>
   </header>
+	
+	{{> page_main}}
+	
+</body>
   
+<template name="page_main">
     <div class="container">
 	{{#if currentUser}}
+		{{#with current_lecture}}
         <div class="row">
           <div class="span12">
+		    <h3>{{title}}
+			</h3>
             {{> compose}}
             {{> list}}
           </div>
@@ -39,16 +57,46 @@
             	</footer>
             </div>
         </div>
+		{{/with}}
 	{{/if}}
-    </div> <!--! end of .container -->
+    </div> 
+</template>
 
-</body>
+
+	<!-- Modal -->
+<template name="add_lecture_modal">
+	<div id="ac_modal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+			<h3 id="modalLabel">Add Lecture</h3>
+		</div>
+		<div class="modal-body">
+			<label> Lecture Title </label>
+			<input type="text">
+		</div>
+		{{#each participants}}
+			<p>
+			{{username}}
+			</p>
+		{{/each}}
+		<div class="modal-footer">
+			<button class="btn cancel" data-dismiss="modal" aria-hidden="true">Close</button>
+			<button class="btn btn-primary save"  data-dismiss="modal" aria-hidden="true">Add Lecture</button>
+		</div>
+	</div>
+</template>
+
+<template name="lectures_menu">
+	{{#each lectures}}
+		<li role="presentation"><a href="#" tabindex="-1" role="menuitem">{{title}}</a></li>		
+	{{/each}}
+</template>
 
 <template name="compose">
   <form id="new-post">
     <textarea class="field"
               id="post-body"
-              rows="8"
+              rows="4"
               placeholder="Compose new post ..."
               required></textarea>
     <input type="submit" value="Create" class="btn btn-primary">
