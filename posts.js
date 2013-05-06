@@ -47,6 +47,7 @@ if (Meteor.isClient){
 				owner: Meteor.userId(),
 				body: $body.val(),
 				votes: 0,
+				voters: [],
 				created_at: new Date().getTime()	//time stamp: this gets the date in milliseconds since the epoch. Works better than just Date() which IE seems to use differently to FF and Chrome
 			});
 			$body.val('');	//clear body after post
@@ -59,8 +60,10 @@ if (Meteor.isClient){
 		},
 		'click .vote_up': function(event) {
 		//if the post is not owned by the voter, then the voter can vote for it. But users can't vote for their own posts.
-			if(Posts.findOne({_id: this._id}).owner != Meteor.userId()){	
+		// Additionally this checks if the user has already voted for the post before, if they haven't then they can increment the vote count otherwise they can't		
+			if((Posts.findOne({_id: this._id}).owner != Meteor.userId()) && (Posts.find({_id: this._id, 'voters': Meteor.userId()}).count() != 1)){
 				Posts.update({_id: this._id},{$inc: {votes:1}});
+				Posts.update({_id: this._id},{$push: {voters: Meteor.userId()}});
 			}
 		},
 		//this simply shows the add/cancel buttons for comments when the user clicks inside the comment text area.
@@ -104,10 +107,14 @@ if (Meteor.isClient){
 				{_id:  Session.get('selected_lecture')}
 			)
 		}
-		else{ //if none is selected, e.g when first logging in, then simply select anyone.
-			return Lectures.findOne(
-				{}
-			)
+		else{ 
+		//else if none is selected, e.g when first logging in, 
+		//then simply select anyone - if there are lectures. And in that case, set the session variable equal to the lecture id.
+			var lecture = Lectures.findOne({});
+			if(lecture){
+				Session.set("selected_lecture", lecture._id);
+			}
+			return lecture;
 		}
 	};
 
