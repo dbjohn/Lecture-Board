@@ -1,3 +1,6 @@
+/*
+This file handles the client side javascript, collections and permissions.
+*/
 
 Lectures = new Meteor.Collection("lectures");
 Posts = new Meteor.Collection("posts");
@@ -10,14 +13,16 @@ if (Meteor.isClient){
 	Meteor.subscribe("comments");
 
 	Template.add_lecture_modal.events({
+		//for adding a lecture from the modal window.
 		'click .btn-primary': function(event, template){
 			if(template.find('input[type="text"]').value != ''){
-				 Lectures.insert({
+				var lecture_id = Lectures.insert({
 					owner: Meteor.userId(),
 					title: template.find('input[type="text"]').value,
-					created_at: Date()
+					created_at: new Date().getTime()
 				});
-				$('#ac_modal').modal('hide')
+				$('#ac_modal').modal('hide');	//manually hide the modal window
+				Session.set("selected_lecture", lecture_id);	//set the current lecture to the newly added one.
 			}
 		},
 		'click .btn': function(event, template){	//when either button is clicked, clear the input textfield.
@@ -25,12 +30,14 @@ if (Meteor.isClient){
 		}
 	});
 	
+	//set the currently selected lecture to the one selected in the nav-bar menu.
 	Template.lectures_menu.events({
 		'click a': function(event){
 			Session.set("selected_lecture", this._id);
 		}
 	});
-	
+		
+	//for adding a post/question
 	Template.compose.events({
 		'submit form': function (event) {
 			var $body = $('#post-body');
@@ -40,21 +47,23 @@ if (Meteor.isClient){
 				owner: Meteor.userId(),
 				body: $body.val(),
 				votes: 0,
-				created_at: Date()
+				created_at: new Date().getTime()	//time stamp: this gets the date in milliseconds since the epoch. Works better than just Date() which IE seems to use differently to FF and Chrome
 			});
-			$body.val('');
+			$body.val('');	//clear body after post
 		}
 	});
 
 	Template.list.events({
 		'click .post-remove': function(event) {
-			Posts.remove(this._id);
+			Posts.remove(this._id);	
 		},
 		'click .vote_up': function(event) {
-			if(Posts.findOne({_id: this._id}).owner != Meteor.userId()){	//if the post is not owned by the voter, then the voter can vote for it. But users can't vote for their own posts.
+		//if the post is not owned by the voter, then the voter can vote for it. But users can't vote for their own posts.
+			if(Posts.findOne({_id: this._id}).owner != Meteor.userId()){	
 				Posts.update({_id: this._id},{$inc: {votes:1}});
 			}
 		},
+		//this simply shows the add/cancel buttons for comments when the user clicks inside the comment text area.
 		'click .comment-body': function(event) {
 			//it is necessary to use e.target and reassign to $this. Because using $(this) will clash with meteor use of "this" as the current data context.		
 			//http://stackoverflow.com/questions/11770613/using-jquery-this-in-meteor		
@@ -65,15 +74,16 @@ if (Meteor.isClient){
 			var $this = $(event.target);
 			var comment = $this.parent().prev();
 			
-			//placing a reference to the post in the comment, as opposed to the other way around, gets by a problem where the posts rendering was triggered unnecessarily every time a comment was added.
+			//When adding a comment, a reference is to the post is added to the comment, 
+			//as opposed to the other way around. Gets by a problem where the posts rendering was triggered unnecessarily every time a comment was added.
 			var comment_id = Comments.insert({
 				post_id: this._id,	//reference to post it belongs to 
 				owner: Meteor.userId(),
 				text: comment.val(),    	
-				created_at: Date()
+				created_at: new Date().getTime()
 			});
-			$this.parent().hide();
-			comment.val('');
+			$this.parent().hide();	//hide the add/cancel buttons
+			comment.val('');	//clear comment area
 		},
 		'click .cancel_comment': function(event) {
 			var $this = $(event.target);
@@ -83,21 +93,25 @@ if (Meteor.isClient){
 		}
 	});
 
+	//get lectures
 	Template.lectures_menu.lectures = Lectures.find({}, {sort: {created_at: 1}});
-	//created as a function so that it will be rerun when the session variable ('selected_lecture') changes.
+	
+	//Get the currently selected lecture (via the nav-bar menu). This is stored in a session variable.
+	//created as a function so that it will be rerun when the session variable ('selected_lecture') changes.	
 	Template.page_main.current_lecture = function(options){
 		if(Session.get('selected_lecture')){
 			return Lectures.findOne(
 				{_id:  Session.get('selected_lecture')}
 			)
 		}
-		else{
+		else{ //if none is selected, e.g when first logging in, then simply select anyone.
 			return Lectures.findOne(
 				{}
 			)
 		}
 	};
 
+	//get posts sorted by votes then by created_at time
 	Template.list.posts = function(){
 		return Posts.find(
 			{lecture_id: Session.get('selected_lecture')}, 
@@ -106,6 +120,7 @@ if (Meteor.isClient){
 	};
 		
 	
+	//get comments belonging to a certain post 
 	Template.comments_area.get_comments = function(post, options){
 		return Comments.find(
 			{post_id: post._id},
@@ -113,6 +128,7 @@ if (Meteor.isClient){
 		)
 	};
 
+	//helper to check if the a user is the owner of a post. Used to decide whether to display a remove icon on the post.
 	Template.post_body.is_owner = function(data, options){
 		if(data.owner == Meteor.userId()){
 			return true;
@@ -135,8 +151,6 @@ Posts.allow({
 	insert: function(userId, post){
 		return (userId && post.owner == userId);
 	},
-	/*need to review update case if user is not owner of post*/
-	/*need to allow non-owners to update so that they can increment votes. is there are more fine grained way...*/
 	update: function(userId, post){
 		return (userId);
 	},
@@ -146,11 +160,10 @@ Posts.allow({
 });
 
 Comments.allow({ 
-	//only users logged in and the owners of posts can insert or remove posts. Logged in users can update posts, for voting.
+	//only users logged in and the owners of comments can insert,update or remove comments.
 	insert: function(userId, comment){
 		return (userId && comment.owner == userId);	
 	},
-	/*need to review update case if user is not owner of post*/
 	update: function(userId, comment){
 		return (userId && comment.owner == userId);	
 	},
@@ -159,12 +172,11 @@ Comments.allow({
 	}
 });
 
-Lectures.allow({ //review this!
-	//only users logged in and the owners of posts can insert or remove posts. Logged in users can update posts, for voting.
+Lectures.allow({ 
+	//Only users logged in and the owners of lectures can insert, update or remove posts. 
 	insert: function(userId, lecture){
 		return (userId && lecture.owner == userId);	
 	},
-	/*need to review update case if user is not owner of post*/
 	update: function(userId, lecture){
 		return (userId && lecture.owner == userId);	
 	},
