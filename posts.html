@@ -1,113 +1,109 @@
+<!-- This is the main page of the application, consisting of the html and meteor/handlebars templates and logic.
+Certain parts of the application are only accessible by users logged in, this is checked by the 
+{{#if currentUser}} helper
+-->
+
 <head>
-  <title>Posts</title>
+	<title>Lecture Board</title>
 </head>
 
 <body>
 <header class="navbar navbar-static">
-              <nav class="navbar-inner">
-                <div class="container top_panel">
-				
-                  <a href="#" class="brand">Lecture Board</a>
-				  
-                  <ul role="navigation" class="nav nav-pills">
-						<li>
-							<!-- <a href="#">Add Class</a> -->
-							<!-- note: removed some attr, is it ok? -->
-							<a href="#ac_modal" data-toggle="modal">Add Lecture</a>
-							{{> add_lecture_modal }}
-								
-						</li>
-						<li class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" role="button" id="drop2" href="#">Select Lecture<b class="caret"></b></a>
-							  <ul aria-labelledby="drop2" role="menu" class="dropdown-menu">
-								{{> lectures_menu}}								
-							  </ul>
-						</li>
-					</ul>
-					<ul class="nav pull-right">
-                       {{loginButtons align="right"}}
-					</ul>
-                
-				</div>  
-    </nav>
-  </header>
-	
-	{{> page_main}}
-	
-</body>
-  
-<template name="page_main">
-    <div class="container">
-	{{#if currentUser}}
-		{{#with current_lecture}}
-        <div class="row">
-          <div class="span12">
-		    <h3>{{title}}
-			</h3>
-            {{> compose}}
-            {{> list}}
-          </div>
-        </div>
+	<nav class="navbar-inner">
+		<div class="container top_panel">
+			<a href="#" class="brand">Lecture Board</a>
 
-        <div class="row">
-            <div class="span12">
-                <footer>
-        	        <input type="button" id="test" value="test"/>        
-                	<div id="testajax"> here </div>
-            	</footer>
-            </div>
-        </div>
-		{{/with}}
-	{{/if}}
-    </div> 
+			{{#if currentUser}}
+				<ul role="navigation" class="nav nav-pills">
+					<li>
+						<a href="#ac_modal" data-toggle="modal">Add Lecture</a>
+						{{> add_lecture_modal }}
+					</li>
+
+					<li class="dropdown">
+						<a data-toggle="dropdown" class="dropdown-toggle" role="button" id="drop2" href="#">Select Lecture<b class="caret"></b></a>
+						<ul aria-labelledby="drop2" role="menu" class="dropdown-menu">
+							{{> lectures_menu}}
+						</ul>
+					</li>
+				</ul>
+			{{/if}}
+					
+			<ul class="nav pull-right">
+			   {{loginButtons align="right"}}
+			</ul>
+		</div>  
+	</nav>
+</header>
+
+	{{> page_main}}
+
+</body>
+
+<template name="page_main">
+	<div class="container">
+		{{#if currentUser}}
+			{{#with current_lecture}}
+				<div class="row">
+					<div class="span12">
+						<h3 id="lecture_title">{{title}}
+						</h3>
+						{{> compose}}
+						{{> list}}
+					</div>
+				</div>
+			{{/with}}
+		{{else}}
+			<div class="alert alert-info">
+				<button class="close" data-dismiss="alert" type="button">x</button>
+				<strong>Welcome, </strong>
+				create an account or log in to add and view lectures.
+			</div>
+		{{/if}}
+	</div> 
 </template>
 
 
-	<!-- Modal -->
+	<!-- This is the modal template shown when the user clicks the add lecture button-->
 <template name="add_lecture_modal">
 	<div id="ac_modal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 			<h3 id="modalLabel">Add Lecture</h3>
 		</div>
-		<div class="modal-body">
-			<label> Lecture Title </label>
-			<input type="text">
-		</div>
-		{{#each participants}}
-			<p>
-			{{username}}
-			</p>
-		{{/each}}
-		<div class="modal-footer">
-			<button class="btn cancel" data-dismiss="modal" aria-hidden="true">Close</button>
-			<button class="btn btn-primary save"  data-dismiss="modal" aria-hidden="true">Add Lecture</button>
-		</div>
+		<form>
+			<div class="modal-body">
+				<label> Lecture Title </label>
+				<input type="text" placeholder="Add title..." required >
+		 	</div>
+			
+			<div class="modal-footer"> 
+				<button class="btn cancel" data-dismiss="modal" aria-hidden="true">Close</button>
+				<input type="submit" class="btn btn-primary save"  value="Add Lecture">
+			</div>
+		</form>
 	</div>
 </template>
 
 <template name="lectures_menu">
 	{{#each lectures}}
-		<li role="presentation"><a href="#" tabindex="-1" role="menuitem">{{title}}</a></li>		
+		<li role="presentation"><a href="#" tabindex="-1" role="menuitem">{{title}}</a></li>
 	{{/each}}
 </template>
 
 <template name="compose">
-  <form id="new-post">
-    <textarea class="field"
-              id="post-body"
-              rows="4"
-              placeholder="Compose new post ..."
-              required></textarea>
-    <input type="submit" value="Create" class="btn btn-primary">
-  </form>
+	<form id="new-post">
+		<textarea class="field"
+			id="post-body"
+			rows="4"
+			placeholder="Compose new post ..."
+			required></textarea>
+		<input type="submit" value="Create" class="btn btn-primary">
+	</form>
 </template>
 
-<!-- might make this a nested template-->
-
 <template name="list">
-
-    {{#each posts}}
+	{{#each posts}}
 		<div class="post">
 			<table class="table table-bordered">
 				<tbody>
@@ -115,18 +111,18 @@
 						{{> vote_section}}
 						{{> post_body}}
 					</tr>
-					
-						{{> comments_area}}
+
+					{{> comments_area}}
+
 					<tr>
 						{{> add_comment_area}}
-							
 					</tr>
-					
+
 				</tbody>
-		  </table>
+			</table>
 		</div>
 	{{/each}}
-	
+
 </template>
 
 <template name="vote_section">
@@ -137,32 +133,28 @@
 		<h3 class="number_of_votes">
 			{{votes}}
 		</h3>
-
 	</td>
 </template>
 
 <template name="post_body">
 	<td>
 		<p>
-		{{body}}
+			{{body}}
 		</p>
-	
 
 		{{#if is_owner this }}
-			  <span class="post-remove">
+			<span class="post-remove">
 				<i class="icon-trash"></i>
-					
-			  </span>
+			</span>
 		{{/if}}
 
 	</td>
-</template>						
-
+</template>
 
 <template name="comments_area">
-	{{#each get_comments this}}        
+	{{#each get_comments this}}
 		<tr class="comments">
-			<td class="first_column">       
+			<td class="first_column">
 				<b>-</b>
 			</td>
 			<td>
@@ -170,22 +162,22 @@
 			</td>
 		</tr>
 	{{/each}}
-</template>										
+</template>
 
 <template name="add_comment_area">
-	
-	<td class="first_column">       
+
+	<td class="first_column">
 		<b>-</b>
 	</td>
 	
-	<td>
+<td>
 		<textarea class="field comment-body"
-					  rows="2"
-					  placeholder="Add comment ..." ></textarea>
+			rows="2"
+			placeholder="Add comment ..." ></textarea>
 		<div class="comment_buttons">
 			<input type="button" value="Add comment" class="btn btn-primary add_comment">
 			<input type="button" value="Cancel" class="btn btn-primary cancel_comment">
 		</div>
 	</td>
-	
-</template>					
+
+</template>
